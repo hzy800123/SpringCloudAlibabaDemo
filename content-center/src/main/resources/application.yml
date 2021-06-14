@@ -1,0 +1,47 @@
+server:
+  port: 8090
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        # 指定 Nacos Server 的地址
+        server-addr: localhost:8848
+        # 服务发现 的领域模型：
+        # Namespace -> Group -> Service -> Cluster -> Instance
+        # 指定 namespace ( dev - dev env namespace )
+        namespace: cb472fa5-5350-44b8-b576-d645c2920442
+        cluster-name: Guangzhou
+        metadata:
+          version: V1
+    inetutils:
+      preferredNetworks:
+        - 192.168.1
+#        - 192.168
+
+
+  application:
+    # 指定 服务名称（使用'-'分隔）
+    name: content-center
+
+# 使用 属性配置 来指定Ribbon的负载均衡的策略
+#user-center:
+#  ribbon:
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RoundRobinRule
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
+# 使用 Ribbon 的饥饿加载, 默认是"懒加载"。
+ribbon:
+  eager-load:
+    enable: true
+    clients: user-center
