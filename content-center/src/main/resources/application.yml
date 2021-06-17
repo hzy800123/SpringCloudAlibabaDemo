@@ -34,6 +34,9 @@ spring:
     # 指定 服务名称（使用'-'分隔）
     name: content-center
 
+  main:
+    allow-bean-definition-overriding: true
+
 # 使用 属性配置 来指定Ribbon的负载均衡的策略
 #user-center:
 #  ribbon:
@@ -45,3 +48,22 @@ ribbon:
   eager-load:
     enable: true
     clients: user-center
+
+logging:
+  level:
+    com.example.demo.feignclient.UserCenterFeignClient: debug
+
+feign:
+  client:
+    config:
+      # Feign局部配置（配置属性方式）
+      # 想要调用的 微服务的名称
+#      user-center:
+#        loggerLevel: FULL
+
+      # Feign全局配置（配置属性方式）
+      # 将服务名称 改为default 就可以了
+      default:
+        loggerLevel: FULL
+        # Feign 的拦截器 RequestInterceptor (属性配置方式）
+        requestInterceptors: com.example.demo.requestinterceptor.ValidateInterceptorForID

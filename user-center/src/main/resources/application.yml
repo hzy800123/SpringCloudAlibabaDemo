@@ -27,7 +27,7 @@ spring:
         # 指定 metadata 信息
         metadata:
           instance: B
-          version: V2
+          version: V1
     inetutils:
       preferredNetworks:
         - 192.168.1

@@ -1,6 +1,8 @@
 package com.example.demo;
 
 import com.example.demo.domain.entity.user.User;
+import com.example.demo.feignclient.UserCenterFeignClient;
+import com.example.demo.feignclient.UserCenterFeignClientMultiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -24,6 +26,12 @@ public class TestController {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private UserCenterFeignClient userCenterFeignClient;
+
+    @Autowired
+    private UserCenterFeignClientMultiParam userCenterFeignClientMultiParam;
 
     @GetMapping("/1")
     public String test() {
@@ -69,16 +77,13 @@ public class TestController {
 
         log.info("Nacos 目标 微服务 的地址URL: {}", targetURLfromNacos);
         log.info("随机 目标 微服务 的地址URL: {}", targetURL);
-//        String testURL = "http://192.168.1.2:8080/1";
 
         // 调用 用户中心 的API，返回用户记录信息
-//        RestTemplate restTemplate = new RestTemplate();
 //        User userInfo = restTemplate.getForObject(
         ResponseEntity<User> userInfo = this.restTemplate.getForEntity(
 //                targetURLfromNacos,
                 targetURL,
 //                testURL,
-//                String.class
                 User.class,
                 id
         );
@@ -97,7 +102,8 @@ public class TestController {
      */
     @GetMapping("/getuserinforibbon/{id}")
 //    @GetMapping("/getuserinforibbon")
-    public User getUserCenterURL(@PathVariable Integer id) throws IllegalArgumentException {
+    public User getUserCenterByRibbon(@PathVariable Integer id) throws IllegalArgumentException {
+//    public User getUserCenterByRibbon(@PathVariable Integer id) throws IllegalArgumentException {
         String targetURL = "http://user-center/API/users/{id}";
 
         // 调用 用户中心 的API，返回用户记录信息
@@ -114,5 +120,57 @@ public class TestController {
 
         return userInfo.getBody();
 //        return userInfo;
+    }
+
+    /**
+     * 通过 Feign，调用 微服务user-center（用户中心）
+     * @return
+     */
+    @GetMapping("/getuserinfofeign/{id}")
+//    @GetMapping("/getuserinfofeign")
+    public User getUserCenterByFeign(@PathVariable Integer id) throws IllegalArgumentException {
+//    public User getUserCenterByFeign(@RequestParam Integer id, @RequestParam String name) throws IllegalArgumentException {
+//        String targetURL = "http://user-center/API/users/{id}";
+
+        // 调用 用户中心 的API，返回用户记录信息
+        log.info("通过Feign，调用 微服务user-center");
+        User userInfo = this.userCenterFeignClient.findById(id);
+
+        log.info(userInfo.toString());
+        return userInfo;
+    }
+
+
+    /**
+     * 通过 Feign，调用 微服务user-center（用户中心），并使用多个参数去调用 Get 方法
+     * @return
+     */
+    @GetMapping("/getuserinfofeign")
+    public User getUserCenterByFeign(User user) throws IllegalArgumentException {
+//        String targetURL = "http://user-center/API/query";
+
+        // 调用 用户中心 的API，返回用户记录信息
+        log.info("通过Feign，调用 微服务user-center");
+        User userInfo = this.userCenterFeignClientMultiParam.findByIdAndName(user);
+
+        log.info(userInfo.toString());
+        return userInfo;
+    }
+
+
+    /**
+     * 通过 Feign，调用 微服务user-center（用户中心），并使用多个参数去调用 Post 方法
+     * @return
+     */
+    @PostMapping("/postuserinfofeign")
+    public User postUserCenterByFeign(@RequestBody User user) throws IllegalArgumentException {
+//        String targetURL = "http://user-center/API/post";
+
+        // 调用 用户中心 的API，返回用户记录信息
+        log.info("通过Feign，调用 微服务user-center");
+        User userInfo = this.userCenterFeignClientMultiParam.postByIdAndName(user);
+
+        log.info(userInfo.toString());
+        return userInfo;
     }
 }
