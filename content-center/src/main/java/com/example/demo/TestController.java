@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.domain.entity.user.User;
+import com.example.demo.feignclient.FeignClientWithoutNacosAndRibbon;
 import com.example.demo.feignclient.UserCenterFeignClient;
 import com.example.demo.feignclient.UserCenterFeignClientMultiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,9 @@ public class TestController {
     @Autowired
     private UserCenterFeignClientMultiParam userCenterFeignClientMultiParam;
 
+    @Autowired
+    private FeignClientWithoutNacosAndRibbon feignClientWithoutNacosAndRibbon;
+
     @GetMapping("/1")
     public String test() {
         return "test successfully !";
@@ -58,7 +62,7 @@ public class TestController {
     }
 
     /**
-     * 获取 微服务（用户中心）的目标URL地址
+     * 使用 RestTemplate, 获取 微服务（用户中心）的目标URL地址
      * @return
      */
 //    @GetMapping("/getuserinfo/{id}")
@@ -97,7 +101,7 @@ public class TestController {
     }
 
     /**
-     * 通过 Ribbon，使用 负载均衡 LoadBalanced，获取 微服务（用户中心）的目标URL地址
+     * 使用 RestTemplate，通过 Ribbon，使用 负载均衡 LoadBalanced，获取 微服务（用户中心）的目标URL地址
      * @return
      */
     @GetMapping("/getuserinforibbon/{id}")
@@ -172,5 +176,14 @@ public class TestController {
 
         log.info(userInfo.toString());
         return userInfo;
+    }
+
+    /**
+     * Feign 脱离 Nacos 和 Ribbon 也可以使用，需要指定 'url'
+     * @return
+     */
+    @GetMapping("baidu")
+    public String getBaiduIndex() {
+        return this.feignClientWithoutNacosAndRibbon.getBaiduIndex();
     }
 }

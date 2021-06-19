@@ -12,18 +12,18 @@ import java.util.Date;
 @Slf4j
 public class UserCenterAPIController {
 
-//    @GetMapping("/users/{id}")
-    @GetMapping("/users")
-//    public User getUserInfo(@PathVariable Integer id) throws InterruptedException {
+    @GetMapping("/users/{id}")
+    public User getUserInfo(@PathVariable Integer id) throws InterruptedException {
+//    @GetMapping("/users")
 //    public User getUserInfo(@RequestParam Integer id) throws InterruptedException {
-    public User getUserInfo(@RequestParam Integer id, @RequestParam String name) throws InterruptedException {
+//    public User getUserInfo(@RequestParam Integer id, @RequestParam String name) throws InterruptedException {
         log.info("API - Get User {}", id);
 //        Thread.sleep(3000);
 
         return User.builder()
                     .id(id)
-//                    .userName("张三")
-                    .userName(name)
+                    .userName("张三")
+//                    .userName(name)
                     .role("Admin")
                     .createTime(new Date())
                     .updateTime(new Date())
