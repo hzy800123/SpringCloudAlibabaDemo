@@ -2,6 +2,8 @@ package com.example.demo.feignclient;
 
 import com.example.demo.configuration.UserCenterFeignConfiguration;
 import com.example.demo.domain.entity.user.User;
+import com.example.demo.feignclientfallback.UserCenterFeignClientFallback;
+import com.example.demo.feignclientfallbackfactory.UserCenterFeignClientFallbackFactory;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,7 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 //@FeignClient(name = "user-center")
 // Feign 支持占位符，可以再配置文件里 定义属性值
-@FeignClient(name = "${feign.name}")
+//@FeignClient(name = "${feign.name}")
+@FeignClient(
+        name = "${feign.name}",
+        // 如果用了 fallbackFactory，就不要用 fallback 了。
+//        fallback = UserCenterFeignClientFallback.class,
+        fallbackFactory = UserCenterFeignClientFallbackFactory.class
+)
 //@FeignClient(name = "user-center", configuration = UserCenterFeignConfiguration.class)
 public interface UserCenterFeignClient {
 

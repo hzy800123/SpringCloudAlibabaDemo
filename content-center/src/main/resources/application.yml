@@ -29,6 +29,22 @@ spring:
         - 192.168.1
 #        - 192.168
 
+    sentinel:
+        # 关闭 对SpringMVC端点 的保护
+      filter:
+        enabled: false
+      transport:
+        # 指定 微服务 使用哪个 IP 和Sentinel Dashboard 控制台通信
+        # 如不配置，会自动选择一个IP注册
+        client-ip: 192.168.1.2
+        # 指定 微服务 使用哪个 端口 和 Sentinel 控制台通信
+        port: 8721
+        # 指定 sentinel dashboard 控制台的地址
+        dashboard: localhost:8060
+        heartbeat-interval-ms: 2000
+
+      web-context-unify: false
+
 
   application:
     # 指定 服务名称（使用'-'分隔）
@@ -36,7 +52,6 @@ spring:
 
   main:
     allow-bean-definition-overriding: true
-
 # 使用 属性配置 来指定Ribbon的负载均衡的策略
 #user-center:
 #  ribbon:
@@ -54,6 +69,10 @@ logging:
     com.example.demo.feignclient.UserCenterFeignClient: debug
 
 feign:
+  # 为 Feign 整合 Sentinel
+  sentinel:
+    enabled: true
+
   client:
     config:
       # Feign局部配置（配置属性方式）
@@ -84,3 +103,11 @@ feign:
 #    max-connections-per-route: 50
 
 feign.name: user-center
+
+resttemplate:
+  sentinel:
+    # 关闭 @SentinelRestTemplate 注解
+#    enabled: false
+    # 打开 @SentinelRestTemplate 注解
+    enabled: true
+
