@@ -53,9 +53,16 @@ public class TestController {
     @Autowired
     private ServiceTest serviceTest;
 
-    @GetMapping("/1")
-    public String test() {
-        return "test successfully !";
+//    @GetMapping("/1")
+//    public String test() {
+//        log.info("test /1");
+//        return "test successfully !";
+//    }
+
+    @GetMapping("/{id}")
+    public String testNumber(@PathVariable Integer id) {
+        log.info("test/{}", id);
+        return "/test/" + id;
     }
 
     /**

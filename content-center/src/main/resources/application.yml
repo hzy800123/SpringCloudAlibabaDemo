@@ -12,6 +12,10 @@ management:
         include: '*'
 
 spring:
+  application:
+    # 指定 服务名称（使用'-'分隔）
+    name: content-center
+
   cloud:
     nacos:
       discovery:
@@ -30,25 +34,65 @@ spring:
 #        - 192.168
 
     sentinel:
-        # 关闭 对SpringMVC端点 的保护
+#      datasource:
+#        # 名称随意
+#        flow:
+#          nacos:
+#            server-addr: localhost:8848
+#            dataId: ${spring.application.name}-flow-rules
+#            namespace: cb472fa5-5350-44b8-b576-d645c2920442
+#            groupId: SENTINEL_GROUP
+#            # 规则类型，取值见：
+#            # org.springframework.cloud.alibaba.sentinel.datasource.RuleType
+#            rule-type: flow
+#        degrade:
+#          nacos:
+#            server-addr: localhost:8848
+#            dataId: ${spring.application.name}-degrade-rules
+#            namespace: cb472fa5-5350-44b8-b576-d645c2920442
+#            groupId: SENTINEL_GROUP
+#            rule-type: degrade
+#        system:
+#          nacos:
+#            server-addr: localhost:8848
+#            dataId: ${spring.application.name}-system-rules
+#            namespace: cb472fa5-5350-44b8-b576-d645c2920442
+#            groupId: SENTINEL_GROUP
+#            rule-type: system
+#        authority:
+#          nacos:
+#            server-addr: localhost:8848
+#            dataId: ${spring.application.name}-authority-rules
+#            namespace: cb472fa5-5350-44b8-b576-d645c2920442
+#            groupId: SENTINEL_GROUP
+#            rule-type: authority
+#        param-flow:
+#          nacos:
+#            server-addr: localhost:8848
+#            dataId: ${spring.application.name}-param-flow-rules
+#            namespace: cb472fa5-5350-44b8-b576-d645c2920442
+#            groupId: SENTINEL_GROUP
+#            rule-type: param-flow
+
+      # 取消 Sentinel 的懒加载，eager = true
+      eager: true
+
+      # 打开 对SpringMVC端点 的保护
       filter:
-        enabled: false
+        enabled: true
       transport:
         # 指定 微服务 使用哪个 IP 和Sentinel Dashboard 控制台通信
         # 如不配置，会自动选择一个IP注册
         client-ip: 192.168.1.2
         # 指定 微服务 使用哪个 端口 和 Sentinel 控制台通信
-        port: 8721
+        port: 8722
         # 指定 sentinel dashboard 控制台的地址
-        dashboard: localhost:8060
+        dashboard: localhost:8061
         heartbeat-interval-ms: 2000
 
       web-context-unify: false
 
 
-  application:
-    # 指定 服务名称（使用'-'分隔）
-    name: content-center
 
   main:
     allow-bean-definition-overriding: true
@@ -111,3 +155,7 @@ resttemplate:
     # 打开 @SentinelRestTemplate 注解
     enabled: true
 
+# Alibaba AHAS 商业流控组件（应用高可用服务）的连接配置：
+#ahas.namespace: default
+#project.name: ContentCenter
+#ahas.license: 003bebb3fa9f498abf22fe69577be5e1
