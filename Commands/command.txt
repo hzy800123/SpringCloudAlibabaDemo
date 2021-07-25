@@ -1,0 +1,19 @@
+- Start Nacos Server:
+cd /Users/john/Documents/GitHub/nacos/bin
+sh startup.sh -m standalone
+
+- Start Sentinel Dashboard:
+cd /Users/john/Documents/GitHub/sentinel
+java -Dserver.port=8060 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard-1.6.3.jar
+
+- Start RocketMQ Name Server:
+cd /Users/john/Documents/GitHub/rocketmq/rocketmq-all-4.5.1-bin-release
+nohup sh bin/mqnamesrv &
+
+- Start RocketMQ Broker Server:
+cd /Users/john/Documents/GitHub/rocketmq/rocketmq-all-4.5.1-bin-release
+nohup sh bin/mqbroker -n localhost:9876 &
+
+- Start RocketMQ Dashboard Conconle:
+cd /Users/john/Documents/GitHub/rocketmq
+java -jar rocketmq-console-ng-1.0.1.jar

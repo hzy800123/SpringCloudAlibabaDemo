@@ -14,7 +14,7 @@ import java.util.Arrays;
  * 均返回资源名称为 /test/{number}
  *
  */
-@Component
+// @Component
 @Slf4j
 public class MyURLCleaner implements UrlCleaner {
     @Override

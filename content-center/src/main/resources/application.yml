@@ -16,6 +16,12 @@ spring:
     # 指定 服务名称（使用'-'分隔）
     name: content-center
 
+  datasource:
+    url: jdbc:mysql://localhost:3307/content_center?useUnicode=true&characterEncoding=utf8
+    hikari:
+      username: root
+      dirver-class-name: com.mysql.cj.Driver
+
   cloud:
     nacos:
       discovery:
@@ -83,11 +89,11 @@ spring:
       transport:
         # 指定 微服务 使用哪个 IP 和Sentinel Dashboard 控制台通信
         # 如不配置，会自动选择一个IP注册
-        client-ip: 192.168.1.2
+#        client-ip: 192.168.1.2
         # 指定 微服务 使用哪个 端口 和 Sentinel 控制台通信
-        port: 8722
+        port: 8720
         # 指定 sentinel dashboard 控制台的地址
-        dashboard: localhost:8061
+        dashboard: localhost:8060
         heartbeat-interval-ms: 2000
 
       web-context-unify: false
@@ -159,3 +165,9 @@ resttemplate:
 #ahas.namespace: default
 #project.name: ContentCenter
 #ahas.license: 003bebb3fa9f498abf22fe69577be5e1
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    # 必须指定 group
+    group: test-group

@@ -11,7 +11,10 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
+import tk.mybatis.spring.annotation.MapperScan;
 
+// 扫描mybatis哪些包里面的接口
+@MapperScan("com.example.demo.contentcenter.dao")
 @SpringBootApplication
 //Feign全局配置（Java代码方式）
 //@EnableFeignClients(defaultConfiguration = UserCenterFeignConfiguration.class)

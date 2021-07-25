@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * 基于 相同集群 优先，再根据 权重的负载均衡算法 进行选择。
  */
 @Slf4j
-public class NacosSameClusterWeighterRule extends AbstractLoadBalancerRule {
+public class NacosSameClusterWeightedRule extends AbstractLoadBalancerRule {
     @Autowired
     private NacosDiscoveryProperties nacosDiscoveryProperties;
 

@@ -92,6 +92,7 @@ public class TestController {
     @GetMapping("/getuserinfo")
 //    public User getUserCenterURL(@PathVariable Integer id) throws IllegalArgumentException {
     public User getUserCenterUL(@RequestParam Integer id) throws IllegalArgumentException{
+        // 从 Nacos 服务注册中心，查找 user-center 微服务的实例
         List<ServiceInstance> instances = this.discoveryClient.getInstances("user-center");
 
         // 获取 用户中心 的所有实例的信息 （例如：URL IP地址信息）
@@ -99,6 +100,7 @@ public class TestController {
                 .map(instance -> instance.getUri().toString() + "/API/users/{id}")
                 .collect(Collectors.toList());
 
+        // 随机 选取一个实例的URL
         int i = ThreadLocalRandom.current().nextInt(targetURLfromNacos.size());
         String targetURL = targetURLfromNacos.get(i);
 
@@ -110,7 +112,6 @@ public class TestController {
         ResponseEntity<User> userInfo = this.restTemplate.getForEntity(
 //                targetURLfromNacos,
                 targetURL,
-//                testURL,
                 User.class,
                 id
         );
@@ -125,6 +126,7 @@ public class TestController {
 
     /**
      * 使用 RestTemplate，通过 Ribbon，使用 负载均衡 LoadBalanced，获取 微服务（用户中心）的目标URL地址
+     * 整合 Ribbon 需要在入口class 加上注解：@LoadBalanced
      * @return User
      */
     @GetMapping("/getuserinforibbon/{id}")
@@ -391,6 +393,8 @@ public class TestController {
 
     /**
      * ( 3 ) 使用 RestTemplate，整合 Sentinel，获取 微服务（用户中心）的目标URL地址
+     * 方法：只需要在 入口class 添加注解：@SentinelRestTemplate
+     *
      * @return User
      */
     @GetMapping("/getuserinfowithsentinel/{id}")
@@ -417,5 +421,7 @@ public class TestController {
     /*
      * ( 4 ) 使用 Feign， 整合 Sentinel， 详见 UserCenterFeignClient 类
      */
+
+
 
 }

@@ -1,6 +1,6 @@
 package ribbonconfiguration;
 
-import com.example.demo.configuration.NacosSameClusterWeighterRule;
+import com.example.demo.configuration.NacosSameClusterWeightedRule;
 import com.example.demo.configuration.NacosSameVersionRule;
 import com.example.demo.configuration.NacosWeightedRule;
 import com.netflix.loadbalancer.IRule;
@@ -22,7 +22,7 @@ public class RibbonConfiguration {
 //        return new NacosWeightedRule();
 
         // 自己定义的 相同集群 优先的，负载均衡算法
-//        return new NacosSameClusterWeighterRule();
+//        return new NacosSameClusterWeightedRule();
 
         // 自己定义的 相同版本 优先的，负载均衡算法
         return new NacosSameVersionRule();

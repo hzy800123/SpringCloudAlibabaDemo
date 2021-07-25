@@ -17,6 +17,8 @@ spring:
       discovery:
         # 指定 Nacos Server 的地址
         server-addr: localhost:8848
+        # Ali Cloud Server Address IP: 192.168.1.250
+#        server-addr: 192.168.1.250:8848
         # 服务发现 的领域模型：
         # Namespace -> Group -> Service -> Cluster -> Instance
         # 指定 namespace ( dev - dev env namespace )
@@ -36,3 +38,6 @@ spring:
   application:
     # 指定 服务名称（使用'-'分隔）
     name: user-center
+
+rocketmq:
+  name-server: localhost:9876
