@@ -34,6 +34,23 @@ spring:
       preferredNetworks:
         - 192.168.1
 #        - 192.168
+    stream:
+      rocketmq:
+        binder:
+          name-server: localhost:9876
+      bindings:
+        input:
+          # 用来指定 Topic
+          # 必须与 bindings.output 的 destination 相同
+          destination: stream-test-topic
+          # 如果用的是RocketMQ，一定要设置 group，否则应用不能启动
+          # 如果用的是其他MQ，可以留空
+          group: binder-group
+        my-input:
+          destination: stream-my-topic
+          # 如果用的是RocketMQ，一定要设置 group，否则应用不能启动
+          # 如果用的是其他MQ，可以留空
+          group: my-group
 
   application:
     # 指定 服务名称（使用'-'分隔）

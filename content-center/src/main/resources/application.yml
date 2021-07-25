@@ -98,6 +98,18 @@ spring:
 
       web-context-unify: false
 
+    # RocketMQ Stream
+    stream:
+      rocketmq:
+        binder:
+          name-server: localhost:9876
+      bindings:
+        output:
+          # 用来指定 Topic
+          destination: stream-test-topic
+        # 这里的"my-output"，必须与接口 MySource class 里的"my-output"一致
+        my-output:
+          destination: stream-my-topic
 
 
   main:
@@ -107,6 +119,7 @@ spring:
 #  ribbon:
 #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RoundRobinRule
 #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
 
 # 使用 Ribbon 的饥饿加载, 默认是"懒加载"。
 ribbon:
@@ -171,3 +184,4 @@ rocketmq:
   producer:
     # 必须指定 group
     group: test-group
+
