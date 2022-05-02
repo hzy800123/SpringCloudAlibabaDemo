@@ -19,7 +19,7 @@ public class ValidateInterceptorForID implements RequestInterceptor {
         log.info("Start to call ValidateInterceptorForID here ! ! !");
 
         // 模拟 黑名单 - Black List for 'id'
-        String[] blackListNames = new String[]{"1", "3", "5"};
+        String[] blackListNames = new String[]{"-5", "-6"};
         List<String> blackListNamesList = Arrays.asList(blackListNames);
 
         //获取到进入时的request对象

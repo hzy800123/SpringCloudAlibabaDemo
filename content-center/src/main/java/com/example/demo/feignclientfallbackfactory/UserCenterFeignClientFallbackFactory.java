@@ -1,10 +1,15 @@
 package com.example.demo.feignclientfallbackfactory;
 
+import com.example.demo.domain.entity.user.Response;
 import com.example.demo.domain.entity.user.User;
 import com.example.demo.feignclient.UserCenterFeignClient;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -13,6 +18,16 @@ public class UserCenterFeignClientFallbackFactory implements FallbackFactory<Use
     public UserCenterFeignClient create(Throwable cause) {
         // 使用 匿名内部类 返回
         return new UserCenterFeignClient() {
+
+            @Override
+            public List<Response> findByIdListInBatch(List<Map<String, String>> requestAPIBodyList) {
+                return new ArrayList<>();
+            }
+
+            @Override
+            public List<User> findByIdList(List<Integer> idList) {
+                return new ArrayList<>();
+            }
 
             @Override
             public User findById(Integer id) {

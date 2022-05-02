@@ -3,15 +3,15 @@ package com.example.demo;
 import com.alibaba.cloud.sentinel.annotation.SentinelRestTemplate;
 import com.example.demo.configuration.UserCenterFeignConfiguration;
 import com.example.demo.configuration.UserCenterRibbonConfiguration;
-import com.example.demo.rocketmq.MySource;
+//import com.example.demo.rocketmq.MySource;
 import com.example.demo.sentinelblock.TestControllerBlockHandler;
 import com.example.demo.sentinelblock.TestControllerRestTemplateBlockHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.messaging.Source;
+//import org.springframework.cloud.stream.annotation.EnableBinding;
+//import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 import tk.mybatis.spring.annotation.MapperScan;
@@ -23,7 +23,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 //@EnableFeignClients(defaultConfiguration = UserCenterFeignConfiguration.class)
 
 @EnableFeignClients
-@EnableBinding({Source.class, MySource.class})	// 添加注解，为了绑定 Stream RocketMQ
+//@EnableBinding({Source.class, MySource.class})	// 添加注解，为了绑定 Stream RocketMQ
 public class SpringCloudAlibabaDemoApplication {
 
 	public static void main(String[] args) {

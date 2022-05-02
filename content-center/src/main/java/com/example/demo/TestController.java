@@ -9,12 +9,15 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
+import com.example.demo.domain.entity.user.Response;
 import com.example.demo.domain.entity.user.User;
 import com.example.demo.feignclient.FeignClientWithoutNacosAndRibbon;
 import com.example.demo.feignclient.UserCenterFeignClient;
 import com.example.demo.feignclient.UserCenterFeignClientMultiParam;
 import com.example.demo.sentinelblock.TestControllerBlockHandler;
 import com.example.demo.sentinelblock.TestControllerFallbackHandler;
+import io.netty.util.concurrent.CompleteFuture;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +27,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -59,11 +63,14 @@ public class TestController {
 //        return "test successfully !";
 //    }
 
+    @SentinelResource("/test/{id}")
     @GetMapping("/{id}")
     public String testNumber(@PathVariable Integer id) {
         log.info("test/{}", id);
         return "/test/" + id;
     }
+    
+
 
     /**
      * 测试：服务发现，证明 内容中心 总能找到 用户中心
@@ -88,10 +95,10 @@ public class TestController {
      * 使用 RestTemplate, 获取 微服务（用户中心）的目标URL地址
      * @return User
      */
-//    @GetMapping("/getuserinfo/{id}")
-    @GetMapping("/getuserinfo")
-//    public User getUserCenterURL(@PathVariable Integer id) throws IllegalArgumentException {
-    public User getUserCenterUL(@RequestParam Integer id) throws IllegalArgumentException{
+    @GetMapping("/getuserinfo/{id}")
+//    @GetMapping("/getuserinfo")
+    public User getUserCenterURL(@PathVariable Integer id) throws IllegalArgumentException {
+//    public User getUserCenterUL(@RequestParam Integer id) throws IllegalArgumentException{
         // 从 Nacos 服务注册中心，查找 user-center 微服务的实例
         List<ServiceInstance> instances = this.discoveryClient.getInstances("user-center");
 
@@ -124,6 +131,7 @@ public class TestController {
 //        return userInfo;
     }
 
+
     /**
      * 使用 RestTemplate，通过 Ribbon，使用 负载均衡 LoadBalanced，获取 微服务（用户中心）的目标URL地址
      * 整合 Ribbon 需要在入口class 加上注解：@LoadBalanced
@@ -147,6 +155,232 @@ public class TestController {
 
         return userInfo.getBody();
 //        return userInfo;
+    }
+
+    /**
+     * 通过 Feign，调用 微服务user-center（用户中心）
+     * @return User
+     */
+    @GetMapping("/getuserinfofeign/id-list")
+    public List<User> getUserCenterByFeignWithIdList() throws IllegalArgumentException {
+        List<Integer> idList = new ArrayList<>();
+        idList.add(1);
+        idList.add(2);
+        idList.add(3);
+
+        // 调用 用户中心 的API，返回用户记录信息
+        log.info("通过Feign，调用 微服务user-center");
+        List<User> userInfoList = this.userCenterFeignClient.findByIdList(idList);
+
+        log.info(userInfoList.toString());
+        return userInfoList;
+    }
+
+
+    @GetMapping("/getuserinfofeign/id-list-concurrently")
+    public List<User> getUserCenterByFeignWithIdListConcurrently(@RequestParam Integer totalSize)
+            throws IllegalArgumentException, ExecutionException, InterruptedException {
+        List<Integer> idListConcurrently = new ArrayList<>();
+
+        int sizeTestUserId = totalSize;
+        for(int i = 0; i < sizeTestUserId; i++) {
+            int randomNumber = getRandomNumber(1, 10);
+            idListConcurrently.add(randomNumber);
+        }
+
+        List<User> userInfoList = new ArrayList<>();
+
+        int sizeList = idListConcurrently.size();
+        CountDownLatch countDownLatch = new CountDownLatch(sizeList);
+        CountDownLatch countDownLatchForResponse = new CountDownLatch(sizeList);
+
+        for (Integer userId : idListConcurrently) {
+            Thread thread = new Thread(
+                    () -> {
+                        try {
+                            countDownLatch.countDown();
+                            countDownLatch.await();
+
+                            // 调用 用户中心 的API，返回用户记录信息
+//                            log.info("After countDownLatch await, start to call API.");
+                            User user = getUserCenterByFeign(userId);
+                            userInfoList.add(user);
+                            countDownLatchForResponse.countDown();
+                        } catch (InterruptedException e) {
+                            log.error("Catch Exception after call API.");
+                            e.printStackTrace();
+                        }
+                    }
+            );
+            thread.start();
+        }
+
+        long startTime = System.nanoTime();
+        log.info("Waiting for All response received.");
+        countDownLatchForResponse.await();
+        log.info("Return the userInfoList size - {}", userInfoList.size());
+        long endTime = System.nanoTime();
+        calculateAndDisplayCostTime(startTime, endTime, "Concurrently - Call API to get All User");
+
+        return userInfoList;
+    }
+
+
+    @GetMapping("/getuserinfofeign/id-list-in-batch")
+    public List<User> getUserCenterByFeignWithIdListInBatch(@RequestParam Integer totalSize)
+            throws IllegalArgumentException, ExecutionException, InterruptedException {
+        List<Integer> idListInBatch = new ArrayList<>();
+
+        int sizeTestUserId = totalSize;
+        for(int i = 0; i < sizeTestUserId; i++) {
+            int randomNumber = getRandomNumber(1, 10);
+            idListInBatch.add(randomNumber);
+        }
+
+        List<User> userInfoList = new ArrayList<>();
+
+        int sizeList = idListInBatch.size();
+        CountDownLatch countDownLatch = new CountDownLatch(sizeList);
+        CountDownLatch countDownLatchForResponse = new CountDownLatch(sizeList);
+
+        for (Integer userId : idListInBatch) {
+            Thread thread = new Thread(
+                    () -> {
+                        try {
+                            countDownLatch.countDown();
+                            countDownLatch.await();
+
+                            // 调用 用户中心 的API，返回用户记录信息
+//                            log.info("After countDownLatch await, start to call API.");
+                            User user = getUserInBatch(userId);
+                            userInfoList.add(user);
+                            countDownLatchForResponse.countDown();
+                        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                            log.error("Catch Exception after call API.");
+                            e.printStackTrace();
+                        }
+                    }
+            );
+            thread.start();
+        }
+
+        long startTime = System.nanoTime();
+        log.info("Waiting for All response received.");
+        countDownLatchForResponse.await();
+//        Thread.sleep(3000);
+        log.info("Return the userInfoList size - {}", userInfoList.size());
+        long endTime = System.nanoTime();
+        calculateAndDisplayCostTime(startTime, endTime, "In Batch - Call API to get All User");
+
+        return userInfoList;
+    }
+
+
+    private void calculateAndDisplayCostTime(long startTime, long endTime, String description) {
+        long usedTime = endTime - startTime;
+        long millisecondTime = TimeUnit.MILLISECONDS.convert(usedTime, TimeUnit.NANOSECONDS);
+        log.warn(description + " - {} milliseconds", millisecondTime);
+    }
+
+
+    private int getRandomNumber(int min, int max) {
+        Random random = new Random();
+        return random.nextInt(max - min + 1) + min;
+    }
+
+
+    @Data
+    class Request {
+        String serialNo = "";
+        Integer userId = 0;
+        CompletableFuture<User> futureUser;
+    }
+
+    // 链表的阻塞队列
+    LinkedBlockingQueue<Request> blockingQueue = new LinkedBlockingQueue<>();
+
+    // 通过 后端的的批量访问接口，并使用CompletableFuture调用，异步返回结果。
+    public User getUserInBatch(Integer userId)
+            throws ExecutionException, InterruptedException, TimeoutException {
+
+        // 对于每个Request，生成唯一的 serialNo
+        String serialNo = UUID.randomUUID().toString();
+
+        // CompletableFuture 会监听结果（线程），然后自动调用get()返回结果
+        CompletableFuture<User> futureUser = new CompletableFuture<>();
+
+        Request request = new Request();
+        request.setSerialNo(serialNo);
+        request.setUserId(userId);
+        request.setFutureUser(futureUser);
+
+        // 把请求，加入阻塞队列
+        blockingQueue.add(request);
+
+        // 如果没有结果，会阻塞；如果有结果，会自动返回结果
+        User user = futureUser.get(10000, TimeUnit.MILLISECONDS);
+//        log.info("After call API, return user: {}", user);
+        return user;
+    }
+
+    @PostConstruct
+    public void doScheduleTask() {
+
+        ScheduledExecutorService scheduledThreadPool = new ScheduledThreadPoolExecutor(1);
+        int maxProcessInEachBatch = 1000;
+
+        scheduledThreadPool.scheduleAtFixedRate(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        int queueSize = blockingQueue.size();
+                        if (queueSize == 0) {
+                            return;
+                        }
+                        log.info("queueSize = {}", queueSize);
+
+                        List<Request> requestList = new ArrayList<>();
+                        List<Map<String, String>> requestAPIBodyList = new ArrayList<>();
+                        int actualProcessSize = Math.min(queueSize, maxProcessInEachBatch);
+
+//                        for(int i = 0; i < queueSize; i++) {
+                        for(int i = 0; i < actualProcessSize; i++) {
+                            Request request = blockingQueue.poll();
+                            requestList.add(request);
+
+                            Map<String, String> map = new HashMap<>();
+                            map.put("serialNo", request.getSerialNo());
+                            map.put("userId", request.getUserId().toString());
+                            requestAPIBodyList.add(map);
+                        }
+                        log.info("批量调用API - size = {}", requestAPIBodyList.size());
+
+                        // 调用 用户中心 的API，返回用户记录信息
+                        log.info("通过Feign，调用 微服务user-center");
+                        List<Response> userInfoList = userCenterFeignClient.findByIdListInBatch(requestAPIBodyList);
+
+                        int notifyCount = 0;
+                        for(Request request : requestList) {
+                            String requestSerialNo = request.getSerialNo();
+
+                            for(Response userInfo : userInfoList) {
+                                String responseSerialNo = (String) userInfo.getSerialNo();
+
+                                if(requestSerialNo.equals(responseSerialNo)) {
+                                    User responseUser = (User) userInfo.getUser();
+                                    request.getFutureUser().complete(responseUser);
+                                    notifyCount++;
+                                    break;
+                                }
+                            }
+                        }
+                        log.info("Complete - Notify Count = {}", notifyCount);
+                    }
+                },
+                1000,
+                100,
+                TimeUnit.MILLISECONDS
+        );
     }
 
     /**
@@ -313,7 +547,7 @@ public class TestController {
      * 1，编码方式， 三个核心 API: SphU, Tracer, ContextUtil
      * 2，注解方式，sentinelResource, blockHandler处理blockException, 1.6前的fallback只处理降级，之后的还能处理异常
      * 3，restTemplate 整合 sentinel, SentinelRestTemplate, blockHandler/fallback 与注解方式类似
-     * 4，Feign 整合，只需开启feign.sentinel.enabled=true配置，fallback降级逻辑自定义，fallbackFactory除了逻辑再加上异常捕获     *
+     * 4，Feign 整合，只需开启feign.sentinel.enabled=true配置，fallback降级逻辑自定义，fallbackFactory除了逻辑再加上异常捕获
      */
 
     /**

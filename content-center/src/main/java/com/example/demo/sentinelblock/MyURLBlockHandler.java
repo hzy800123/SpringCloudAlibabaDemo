@@ -21,7 +21,7 @@ import java.io.IOException;
 /**
  * UrlBlockHandler 可以提供 Sentinel 的各种 异常处理 的具体逻辑
  */
-@Component
+//@Component
 public class MyURLBlockHandler implements UrlBlockHandler {
     @Override
     public void blocked(HttpServletRequest request, HttpServletResponse response, BlockException ex) throws IOException {

@@ -12,6 +12,14 @@ management:
         include: '*'
 
 spring:
+
+  # MySQL Database
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/user_center?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: 123456
+
   cloud:
     nacos:
       discovery:
@@ -34,6 +42,7 @@ spring:
       preferredNetworks:
         - 192.168.1
 #        - 192.168
+
     stream:
       rocketmq:
         binder:
@@ -58,3 +67,18 @@ spring:
 
 rocketmq:
   name-server: localhost:9876
+
+#logging:
+#  level:
+#    com:
+#      spring:
+#        ibatis:
+#          User: DEBUG
+#
+#    org:
+#      springframework: WARN
+#
+logging:
+  config: classpath:logback-dev.xml
+  level:
+    com.com.example.demo.domain.entity.user: debug

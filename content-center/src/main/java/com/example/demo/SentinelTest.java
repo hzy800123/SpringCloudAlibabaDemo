@@ -34,13 +34,26 @@ public class SentinelTest {
      * 设置参数：超时时间
      * 直到 如果请求等待 超过"超时时间"（e.g. 10000 ms/毫秒），则丢弃请求。
      */
-    public static void main(String[] args) {
+    public static void main2(String[] args) {
         RestTemplate restTemplate = new RestTemplate();
         String targetURL = "http://localhost:8090/test/test-a";
 
         for (int i=0; i<100; i++) {
             String object = restTemplate.getForObject(targetURL, String.class);
             log.info("---", object, "---");
+        }
+    }
+
+
+    public static void main(String[] args) throws InterruptedException {
+        RestTemplate restTemplate = new RestTemplate();
+        String targetURL = "http://localhost:8090/test/1";
+
+        for (int i=0; i<10000; i++) {
+            String object = restTemplate.getForObject(targetURL, String.class);
+            log.info("---> {}", object);
+//            log.info("Sleep 500ms here...");
+//            Thread.sleep(500);
         }
     }
 }

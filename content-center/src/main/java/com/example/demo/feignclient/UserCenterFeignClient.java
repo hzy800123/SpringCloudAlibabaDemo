@@ -1,13 +1,15 @@
 package com.example.demo.feignclient;
 
 import com.example.demo.configuration.UserCenterFeignConfiguration;
+import com.example.demo.domain.entity.user.Response;
 import com.example.demo.domain.entity.user.User;
 import com.example.demo.feignclientfallback.UserCenterFeignClientFallback;
 import com.example.demo.feignclientfallbackfactory.UserCenterFeignClientFallbackFactory;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 //@FeignClient(name = "user-center")
 // Feign 支持占位符，可以再配置文件里 定义属性值
@@ -20,6 +22,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 //@FeignClient(name = "user-center", configuration = UserCenterFeignConfiguration.class)
 public interface UserCenterFeignClient {
+
+    /**
+     * 当调用 findById 方法时，会自动构造以下的URL，去调用 微服务提供者的API
+     * 并把返回的结果转换为User对象
+     * URL:
+     * http://user-center/users/id-list
+     * @param id
+     * @param name
+     * @return
+     */
+    @PostMapping("/API/users/id-list-in-batch")
+    List<Response> findByIdListInBatch(@RequestBody List<Map<String, String>> requestAPIBodyList);
+
+    /**
+     * 当调用 findById 方法时，会自动构造以下的URL，去调用 微服务提供者的API
+     * 并把返回的结果转换为User对象
+     * URL:
+     * http://user-center/users/id-list
+     * @param id
+     * @param name
+     * @return
+     */
+    @PostMapping("/API/users/id-list")
+    List<User> findByIdList(@RequestBody List<Integer> idList);
 
     /**
      * 当调用 findById 方法时，会自动构造以下的URL，去调用 微服务提供者的API

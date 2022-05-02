@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Slf4j
 @Service
-@RocketMQMessageListener(consumerGroup = "test-group2", topic = "test-topic-center")
+//@RocketMQMessageListener(consumerGroup = "test-group2", topic = "test-topic-center")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AddUserListener implements RocketMQListener<User> {
     @Override
